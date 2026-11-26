@@ -79,31 +79,60 @@
     return '';
   }
 
-  function createSampleData() {
-    const sampleNames = [
-      'เด็กชายกิตติพงศ์ ใจดี',
-      'เด็กชายธนกฤต รักเรียน',
-      'เด็กชายณัฐพล สุขสันต์',
-      'เด็กชายปภังกร ชัยชนะ',
-      'เด็กชายภานุวัฒน์ มั่นคง',
-      'เด็กหญิงกัญญาภัค สดใส',
-      'เด็กหญิงชนิกานต์ พากเพียร',
-      'เด็กหญิงณัชชา แสงทอง',
-      'เด็กหญิงปวริศา มีสุข',
-      'เด็กหญิงพิชญาภา อ่อนหวาน',
-      'เด็กหญิงวรัญญา เจริญผล',
-      'เด็กหญิงสิริกัญญา วงศ์สวัสดิ์'
+  function buildDefaultStudents() {
+    const defaultNames = [
+      'เด็กชายกันต์ธีร์ แก้วมุกดา',
+      'เด็กชายโกมินทร์ สามล',
+      'เด็กชายเจตน์สฤษฎิ์ คงประชุม',
+      'เด็กชายฉัตรเมธี ภู่ทอง',
+      'เด็กชายชนภัทร เจียมอ่อน',
+      'เด็กชายณัฐพนธ์ ศรีสร้อย',
+      'เด็กชายณัฐวุฒิ พิสุทธิ์',
+      'เด็กชายแทนคุณ อินทร์กอง',
+      'เด็กชายนภัสกร ชูช่อ',
+      'เด็กชายปวรปรัชญ์ คำดี',
+      'เด็กชายรัชชานนท์ วงศ์ละคร',
+      'เด็กชายรุ่งโรจน์ ปาศรีวงค์',
+      'เด็กชายศิวัช สุคนธจร',
+      'เด็กชายศุภากร แบนขุนทด',
+      'เด็กหญิงกชภัส ชินภักดี',
+      'เด็กหญิงกมลชนก กองเพ็ง',
+      'เด็กหญิงกมลนิตย์ ศรีบุตร',
+      'เด็กหญิงกันต์ฤทัย ขุรีรัง',
+      'เด็กหญิงกัลยรัตน์ ปานพลอย',
+      'เด็กหญิงกัลยาณี ทิพย์สละ',
+      'เด็กหญิงฉัตรลดา จินตะกัน',
+      'เด็กหญิงชลดา ปิยังคะบุตร',
+      'เด็กหญิงญาดา ตั้งศิริวัฒนวงศ์',
+      'เด็กหญิงญาดา เป้าประจำเมือง',
+      'เด็กหญิงณัฐณิชา เทศลิ้นจี่',
+      'เด็กหญิงนันทิกานต์ รักษาพล',
+      'เด็กหญิงประภัทรสรณ์ แก้วฟ้า',
+      'เด็กหญิงเปรมฤดี มีเรืองชัย',
+      'เด็กหญิงพัชราพร สังข์กรณ์',
+      'เด็กหญิงภคพร พันธุวัฒนาเจริญ',
+      'เด็กหญิงรมิตา แก้วจินดา',
+      'เด็กหญิงวศินี บุญเพ็ง',
+      'เด็กหญิงสรัลรัศมิ์ คงกระพันธ์',
+      'เด็กหญิงสุภกานต์ ศรีคูณ',
+      'เด็กหญิงอภิญญา สังข์ทอง',
+      'เด็กหญิงอัญชลีพร ศรีสุริยะมงคล',
+      'เด็กหญิงอัญญาภรณ์ ศรีทอง'
     ];
 
-    const students = sampleNames.map((name, idx) => ({
-      id: `stu-sample-${idx + 1}`,
+    return defaultNames.map((name, idx) => ({
+      id: `stu-${idx + 1}`,
       no: idx + 1,
       name,
       gender: detectGender(name)
     }));
+  }
+
+  function createSampleData() {
+    const students = buildDefaultStudents();
 
     return {
-      version: 1,
+      version: 2,
       settings: {
         schoolName: 'โรงเรียนตัวอย่างวิทยาคม',
         includePresentInLine: false,
@@ -136,6 +165,23 @@
         saveState(fresh);
         return fresh;
       }
+
+      // Auto-migrate if previously loaded only the initial sample placeholder students
+      const defaultRoom = parsed.rooms.find((r) => r.id === 'room-default-1');
+      if (
+        defaultRoom &&
+        Array.isArray(defaultRoom.students) &&
+        defaultRoom.students.length > 0 &&
+        defaultRoom.students.every((s) => typeof s.id === 'string' && s.id.startsWith('stu-sample-'))
+      ) {
+        defaultRoom.students = buildDefaultStudents();
+        parsed.version = 2;
+        if (parsed.records && parsed.records['room-default-1']) {
+          delete parsed.records['room-default-1'];
+        }
+        saveState(parsed);
+      }
+
       parsed.settings = Object.assign(
         {
           schoolName: 'โรงเรียนตัวอย่างวิทยาคม',
