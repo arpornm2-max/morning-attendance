@@ -200,8 +200,26 @@
     ctx.fill();
     ctx.restore();
 
+    function drawTextCentered(text, centerX, y) {
+      ctx.textAlign = 'left';
+      const w = ctx.measureText(text).width;
+      ctx.fillText(text, centerX - w / 2, y);
+    }
+
+    function drawTextRight(text, rightX, y) {
+      ctx.textAlign = 'left';
+      const w = ctx.measureText(text).width;
+      ctx.fillText(text, rightX - w, y);
+    }
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+
     // Header badge pill
-    drawRoundedRect(ctx, PAD, 28, 292, 36, 18);
+    const headerPillText = 'สรุปการเช็คชื่อเข้าแถวตอนเช้า';
+    ctx.font = `600 17px ${FONT_HEADING}`;
+    const headerPillW = Math.max(250, ctx.measureText(headerPillText).width + 40);
+    drawRoundedRect(ctx, PAD, 28, headerPillW, 36, 18);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
@@ -209,21 +227,18 @@
     ctx.stroke();
 
     ctx.fillStyle = '#fef08a';
-    ctx.font = `600 17px ${FONT_HEADING}`;
-    ctx.textBaseline = 'middle';
-    ctx.fillText('สรุปการเช็คชื่อเข้าแถวตอนเช้า', PAD + 22, 46);
+    drawTextCentered(headerPillText, PAD + headerPillW / 2, 46);
 
     // Room Pill on Top Right
     const roomBadgeText = `ชั้น ${room.name}`;
     ctx.font = `700 22px ${FONT_HEADING}`;
-    const roomBadgeW = Math.max(132, ctx.measureText(roomBadgeText).width + 44);
-    drawRoundedRect(ctx, W - PAD - roomBadgeW, 28, roomBadgeW, 44, 14);
+    const roomBadgeW = Math.max(132, ctx.measureText(roomBadgeText).width + 48);
+    const roomBadgeX = W - PAD - roomBadgeW;
+    drawRoundedRect(ctx, roomBadgeX, 28, roomBadgeW, 44, 14);
     ctx.fillStyle = '#fbbf24';
     ctx.fill();
     ctx.fillStyle = '#0f172a';
-    ctx.textAlign = 'center';
-    ctx.fillText(roomBadgeText, W - PAD - roomBadgeW / 2, 51);
-    ctx.textAlign = 'left';
+    drawTextCentered(roomBadgeText, roomBadgeX + roomBadgeW / 2, 50);
 
     // School Name or Class Title
     ctx.fillStyle = '#ffffff';
@@ -310,7 +325,7 @@
     // Donut Ring on Right of Overview Card (Present + Late + Activity = On-Campus Attendance)
     const ringCX = W - PAD - 88;
     const ringCY = cursorY + OVERVIEW_H / 2;
-    const ringR = 46;
+    const ringR = 48;
     const pct = summary.total > 0 ? summary.onCampusCount / summary.total : 0;
 
     ctx.beginPath();
@@ -328,14 +343,12 @@
       ctx.stroke();
     }
 
-    ctx.textAlign = 'center';
     ctx.fillStyle = '#0f172a';
-    ctx.font = `700 22px ${FONT_HEADING}`;
-    ctx.fillText(formatPercent(summary.onCampusCount, summary.total), ringCX, ringCY - 4);
+    ctx.font = `700 21px ${FONT_HEADING}`;
+    drawTextCentered(formatPercent(summary.onCampusCount, summary.total), ringCX, ringCY - 5);
     ctx.fillStyle = '#64748b';
     ctx.font = `500 13px ${FONT_BODY}`;
-    ctx.fillText('มาโรงเรียน', ringCX, ringCY + 18);
-    ctx.textAlign = 'left';
+    drawTextCentered('มาโรงเรียน', ringCX, ringCY + 17);
 
     cursorY += OVERVIEW_H + 28;
 
@@ -385,13 +398,12 @@
       const pctStr = formatPercent(count, summary.total);
       ctx.font = `600 15px ${FONT_HEADING}`;
       const badgeW = ctx.measureText(pctStr).width + 20;
-      drawRoundedRect(ctx, x + CARD_W - badgeW - 14, y + 18, badgeW, 28, 14);
+      const badgeX = x + CARD_W - badgeW - 14;
+      drawRoundedRect(ctx, badgeX, y + 18, badgeW, 28, 14);
       ctx.fillStyle = count > 0 ? st.softBg : '#f8fafc';
       ctx.fill();
       ctx.fillStyle = count > 0 ? st.darkText : '#94a3b8';
-      ctx.textAlign = 'center';
-      ctx.fillText(pctStr, x + CARD_W - badgeW / 2 - 14, y + 33);
-      ctx.textAlign = 'left';
+      drawTextCentered(pctStr, badgeX + badgeW / 2, y + 32);
     });
 
     cursorY += CARD_H * 2 + GRID_GAP + 28;
@@ -406,14 +418,12 @@
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        ctx.textAlign = 'center';
         ctx.fillStyle = '#065f46';
         ctx.font = `700 24px ${FONT_HEADING}`;
-        ctx.fillText('นักเรียนมาเรียนครบทุกคน (100%)', W / 2, cursorY + 46);
+        drawTextCentered('นักเรียนมาเรียนครบทุกคน (100%)', W / 2, cursorY + 44);
         ctx.fillStyle = '#047857';
         ctx.font = `500 18px ${FONT_BODY}`;
-        ctx.fillText('ไม่มีนักเรียนมาสาย ขาดเรียน ลา หรือติดกิจกรรมในวันนี้', W / 2, cursorY + 80);
-        ctx.textAlign = 'left';
+        drawTextCentered('ไม่มีนักเรียนมาสาย ขาดเรียน ลา หรือติดกิจกรรมในวันนี้', W / 2, cursorY + 78);
         cursorY += 130;
       } else {
         ctx.fillStyle = '#1e293b';
@@ -529,11 +539,9 @@
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        ctx.textAlign = 'center';
         ctx.fillStyle = stObj ? stObj.darkText : '#64748b';
         ctx.font = `600 15px ${FONT_HEADING}`;
-        ctx.fillText(stObj ? stObj.label : 'ยังไม่เช็ค', badgeX + badgeW / 2, rowY + 23);
-        ctx.textAlign = 'left';
+        drawTextCentered(stObj ? stObj.label : 'ยังไม่เช็ค', badgeX + badgeW / 2, rowY + 22);
 
         // Note
         if (entry.note) {
@@ -563,11 +571,9 @@
     ctx.font = `500 15px ${FONT_BODY}`;
     ctx.fillText(`บันทึกข้อมูลเมื่อ ${updatedTime}`, PAD, footerY + 44);
 
-    ctx.textAlign = 'right';
     ctx.fillStyle = '#94a3b8';
     ctx.font = `500 15px ${FONT_HEADING}`;
-    ctx.fillText('ระบบเช็คชื่อนักเรียนเข้าแถวตอนเช้า', W - PAD, footerY + 44);
-    ctx.textAlign = 'left';
+    drawTextRight('ระบบเช็คชื่อนักเรียนเข้าแถวตอนเช้า', W - PAD, footerY + 44);
 
     return canvas;
   }

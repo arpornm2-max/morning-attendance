@@ -1104,8 +1104,11 @@ dialog::backdrop {
 .modal-body {
   padding: 18px 20px;
   overflow-y: auto;
-  flex: 1;
-  display: grid;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-block-size: 0;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
 }
 
@@ -1691,9 +1694,35 @@ dialog::backdrop {
   /* Export & Form Layouts */
   .secondary-export-row,
   .backup-card-grid,
-  .form-row-2,
-  .image-mode-bar {
+  .form-row-2 {
     grid-template-columns: 1fr;
+  }
+
+  .image-mode-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .mode-btn {
+    min-block-size: 40px;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .image-preview-stage {
+    padding: 6px;
+    min-block-size: 240px;
+    flex: 1 1 auto;
+    align-content: start;
+  }
+
+  .preview-image {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    block-size: auto;
   }
 
   .inline-add-form,
@@ -1714,12 +1743,16 @@ dialog::backdrop {
   .modal-dialog.modal-lg,
   .modal-dialog.modal-sm {
     inline-size: calc(100vw - 14px);
-    max-block-size: calc(100dvh - 20px);
+    max-block-size: calc(100dvh - 24px);
     border-radius: 16px;
   }
 
+  .modal-dialog.modal-lg[open] {
+    block-size: calc(100dvh - 28px);
+  }
+
   .modal-header {
-    padding: 13px 14px;
+    padding: 12px 14px;
   }
 
   .modal-header h1 {
@@ -1727,16 +1760,36 @@ dialog::backdrop {
   }
 
   .modal-body {
-    padding: 14px;
+    padding: 10px 12px;
+    gap: 10px;
   }
 
   .modal-footer {
-    padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    gap: 8px;
   }
 
   .modal-footer .btn {
-    flex: 1;
+    min-inline-size: 0;
     min-block-size: 44px;
+    padding: 8px 10px;
+    font-size: 0.88rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .modal-footer-image {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .modal-footer-image #download-image-btn {
+    grid-column: 1 / -1;
+  }
+
+  .modal-footer-image:has(#share-image-btn[hidden]) #close-image-btn {
+    grid-column: 1 / -1;
   }
 
   /* Mobile Sticky Bottom Action Bar (3 buttons) */
