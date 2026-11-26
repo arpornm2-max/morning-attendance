@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1e3a8a">
+  <meta name="description" content="โปรแกรมเช็คชื่อนักเรียนเข้าแถวตอนเช้า มีสถานะ มาเรียน สาย ขาด ลากิจ ลาป่วย กิจกรรม พร้อมคัดลอกสรุปส่ง LINE และบันทึกรูปภาพสรุปรายวัน">
+  <title>ระบบเช็คชื่อนักเรียนเข้าแถวตอนเช้า</title>
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="m4.93 4.93 1.41 1.41"></path>
+              <path d="m17.66 17.66 1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="m6.34 17.66-1.41 1.41"></path>
+              <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <p class="school-label" id="header-school-name">โรงเรียนตัวอย่างวิทยาคม</p>
+            <h1 class="app-title">เช็คชื่อเข้าแถวตอนเช้า</h1>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="room-select-wrap">
+            <label for="room-selector" class="sr-only">เลือกห้องเรียน</label>
+            <select id="room-selector" class="room-select" aria-label="เลือกห้องเรียน"></select>
+          </div>
+          <button type="button" class="btn btn-glass" id="open-history-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>ประวัติ</span>
+          </button>
+          <button type="button" class="btn btn-glass" id="open-manage-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>รายชื่อ / ตั้งค่า</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="main-container">
+      <!-- Date & Quick Actions Strip -->
+      <section class="control-card" aria-label="เลือกวันที่และคำสั่งด่วน">
+        <div class="date-controls">
+          <button type="button" class="icon-btn" id="prev-date-btn" aria-label="วันก่อนหน้า">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div class="date-display-group">
+            <div class="thai-date-heading" id="thai-date-label">วันพฤหัสบดีที่ 26 พฤศจิกายน พ.ศ. 2569</div>
+            <div class="date-meta-row">
+              <label for="attendance-date" class="date-picker-trigger">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>เปลี่ยนวันที่</span>
+                <input type="date" id="attendance-date" class="native-date-input">
+              </label>
+              <button type="button" class="link-btn" id="today-date-btn">กลับไปวันนี้</button>
+              <span class="teacher-pill" id="teacher-name-pill"></span>
+            </div>
+          </div>
+          <button type="button" class="icon-btn" id="next-date-btn" aria-label="วันถัดไป">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div class="quick-actions">
+          <button type="button" class="btn btn-present-all" id="mark-all-present-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>มาเรียนทั้งหมด</span>
+          </button>
+          <button type="button" class="btn btn-outline-danger" id="clear-day-btn">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>ล้างวันนี้</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Live Summary Stats Grid -->
+      <section class="summary-strip" aria-label="สรุปสถิติการเช็คชื่อวันนี้">
+        <div class="progress-header">
+          <div class="progress-title-group">
+            <span class="progress-label" id="checked-progress-text">เช็คชื่อแล้ว 0 / 0 คน</span>
+            <span class="gender-summary-badge" id="gender-summary-badge"></span>
+          </div>
+          <span class="attendance-rate-badge" id="attendance-rate-badge">มาโรงเรียน 0%</span>
+        </div>
+        <div class="stacked-bar" id="stacked-progress-bar" aria-hidden="true"></div>
+        <div class="stat-cards-grid" id="stat-cards-grid" role="group" aria-label="ตัวกรองตามสถานะ"></div>
+      </section>
+
+      <!-- Two-Column Workspace: Left Checklist, Right LINE & Image Summary -->
+      <div class="workspace-grid">
+        <!-- Checklist Column -->
+        <section class="checklist-panel" aria-label="รายชื่อนักเรียนสำหรับเช็คชื่อ">
+          <div class="checklist-toolbar">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="search" id="student-search" placeholder="ค้นหาเลขที่ หรือ ชื่อนักเรียน..." aria-label="ค้นหานักเรียน">
+            </div>
+            <div class="filter-chips" id="filter-chips">
+              <button type="button" class="chip active" data-filter="all">ทั้งหมด</button>
+              <button type="button" class="chip" data-filter="unchecked">ยังไม่เช็ค <span id="unchecked-chip-count">0</span></button>
+            </div>
+          </div>
+
+          <div class="student-list" id="student-list"></div>
+        </section>
+
+        <!-- Summary & Export Column -->
+        <aside class="export-panel" id="export-panel" aria-label="สรุปส่งไลน์และบันทึกรูปภาพ">
+          <div class="export-card">
+            <div class="export-card-header">
+              <h2 class="panel-heading">สรุปข้อความสำหรับส่ง LINE</h2>
+              <label class="toggle-inline">
+                <input type="checkbox" id="toggle-include-present">
+                <span>แสดงรายชื่อคนมาเรียน</span>
+              </label>
+            </div>
+
+            <div class="line-preview-wrap">
+              <textarea id="line-summary-text" class="line-summary-textarea" rows="13" readonly aria-label="ข้อความสรุปการเช็คชื่อสำหรับส่งในไลน์"></textarea>
+            </div>
+
+            <div class="export-actions-stack">
+              <span class="copy copy-full">
+                <button type="button" class="btn btn-line copy-button" command="--copy" commandfor="line-summary-text">
+                  <svg class="icon-copy" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <svg class="icon-check" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>คัดลอกข้อความส่ง LINE</span>
+                </button>
+                <span class="tip" role="status"></span>
+              </span>
+
+              <div class="secondary-export-row">
+                <button type="button" class="btn btn-primary" id="open-image-preview-btn">
+                  <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <span>บันทึกเป็นรูปภาพสรุป</span>
+                </button>
+
+                <button type="button" class="btn btn-line-outline" id="share-line-app-btn">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                  <span>ส่งเข้า LINE</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- Mobile Sticky Bottom Action Bar -->
+    <nav class="mobile-bottom-bar" aria-label="คำสั่งส่งออกด่วน">
+      <span class="copy copy-mobile">
+        <button type="button" class="btn btn-line copy-button" command="--copy" commandfor="line-summary-text">
+          <svg class="icon-copy" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <svg class="icon-check" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>คัดลอกส่ง LINE</span>
+        </button>
+        <span class="tip" role="status"></span>
+      </span>
+
+      <button type="button" class="btn btn-primary" id="mobile-image-btn">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>บันทึกรูปภาพ</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Screen Reader Live Region Fallback -->
+  <p class="sr-only">การแจ้งเตือนระบบ</p>
+  <div id="sr-announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <div id="visual-status-banner" class="status-pill-toast" aria-hidden="true"></div>
+
+  <!-- Native Modal Dialog 1: Image Summary Preview & Download -->
+  <dialog id="image-dialog" class="modal-dialog modal-lg" closedby="any" aria-labelledby="image-dialog-title">
+    <div class="modal-header">
+      <h1 id="image-dialog-title">ตัวอย่างรูปภาพสรุปการเช็คชื่อ</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" value="close" aria-label="ปิดหน้าต่าง">✕</button>
+      </form>
+    </div>
+
+    <div class="modal-body">
+      <div class="image-mode-bar" role="group" aria-label="รูปแบบรูปภาพสรุป">
+        <button type="button" class="mode-btn active" data-image-mode="summary" id="mode-summary-btn">แบบสรุปกระชับ (แนะนำส่ง LINE)</button>
+        <button type="button" class="mode-btn" data-image-mode="full" id="mode-full-btn">แบบแสดงรายชื่อครบทุกคน</button>
+      </div>
+
+      <div class="image-preview-stage" id="image-preview-stage">
+        <p class="preview-loading" id="image-preview-loading">กำลังสร้างรูปภาพความคมชัดสูง...</p>
+        <img id="image-preview-img" class="preview-image" alt="ภาพสรุปการเช็คชื่อเข้าแถวตอนเช้า" hidden>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="close-image-btn">ปิด</button>
+      <button type="button" class="btn btn-line-outline" id="share-image-btn" hidden>แชร์รูปภาพไป LINE</button>
+      <button type="button" class="btn btn-primary" id="download-image-btn" autofocus>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>บันทึกรูปภาพ (.png)</span>
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Native Modal Dialog 2: Manage Students, Rooms & Settings -->
+  <dialog id="manage-dialog" class="modal-dialog modal-lg" closedby="any" aria-labelledby="manage-dialog-title">
+    <div class="modal-header">
+      <h1 id="manage-dialog-title">จัดการห้องเรียนและรายชื่อนักเรียน</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" value="close" aria-label="ปิดหน้าต่าง">✕</button>
+      </form>
+    </div>
+
+    <div class="modal-tabs" role="tablist" aria-label="หมวดหมู่การตั้งค่า">
+      <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="students">รายชื่อนักเรียน</button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="bulk">วางรายชื่อหลายคน</button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="rooms">ห้องเรียน &amp; โรงเรียน</button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="backup">สำรองข้อมูล</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Tab 1: Single Student List Management -->
+      <section class="tab-panel active" data-panel="students">
+        <form id="add-student-form" class="inline-add-form">
+          <div class="field field-no">
+            <label for="new-student-no">เลขที่</label>
+            <input type="number" id="new-student-no" min="1" max="999" required>
+          </div>
+          <div class="field field-name">
+            <label for="new-student-name">ชื่อ-นามสกุล</label>
+            <input type="text" id="new-student-name" placeholder="เช่น เด็กชายสมชาย ใจดี" required>
+          </div>
+          <div class="field field-gender">
+            <label for="new-student-gender">เพศ</label>
+            <select id="new-student-gender">
+              <option value="auto">อัตโนมัติ</option>
+              <option value="M">ชาย</option>
+              <option value="F">หญิง</option>
+              <option value="">ไม่ระบุ</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">เพิ่มชื่อ</button>
+        </form>
+
+        <div class="manage-student-list" id="manage-student-list"></div>
+      </section>
+
+      <!-- Tab 2: Bulk Paste Students -->
+      <section class="tab-panel" data-panel="bulk">
+        <p class="helper-text">
+          คัดลอกรายชื่อนักเรียนจาก Excel, Google Sheets หรือ LINE แล้ววางลงในช่องด้านล่าง (1 บรรทัดต่อ 1 คน)
+          ระบบจะแยกเลขที่และเพศ (ด.ช./ด.ญ./นาย/น.ส.) ให้อัตโนมัติ
+        </p>
+        <div class="field">
+          <label for="bulk-student-input">รายชื่อนักเรียน</label>
+          <textarea id="bulk-student-input" rows="9" placeholder="1. เด็กชายกิตติพงศ์ ใจดี&#10;2. เด็กหญิงชนิกานต์ พากเพียร&#10;3. นายธนกฤต รักเรียน"></textarea>
+        </div>
+        <div class="bulk-actions-row">
+          <button type="button" class="btn btn-secondary" id="bulk-append-btn">เพิ่มต่อจากรายชื่อเดิม</button>
+          <button type="button" class="btn btn-primary" id="bulk-replace-btn">แทนที่รายชื่อทั้งหมดในห้องนี้</button>
+        </div>
+      </section>
+
+      <!-- Tab 3: Rooms & School Info -->
+      <section class="tab-panel" data-panel="rooms">
+        <form id="school-settings-form" class="settings-form">
+          <div class="field">
+            <label for="setting-school-name">ชื่อโรงเรียน / หน่วยงาน</label>
+            <input type="text" id="setting-school-name" placeholder="เช่น โรงเรียนวังน้ำเย็นวิทยาคม">
+          </div>
+          <div class="form-row-2">
+            <div class="field">
+              <label for="setting-room-name">ชื่อห้องเรียนปัจจุบัน</label>
+              <input type="text" id="setting-room-name" placeholder="เช่น ม.3/1">
+            </div>
+            <div class="field">
+              <label for="setting-room-teacher">ชื่อครูที่ปรึกษา</label>
+              <input type="text" id="setting-room-teacher" placeholder="เช่น ครูอาภรณ์ ม่านทอง">
+            </div>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="setting-show-gender">
+            <span>แสดงยอดรวมแยก ชาย / หญิง ในสรุป LINE และรูปภาพ</span>
+          </label>
+          <div class="settings-save-row">
+            <button type="submit" class="btn btn-primary">บันทึกข้อมูลโรงเรียนและห้อง</button>
+          </div>
+        </form>
+
+        <hr class="divider">
+
+        <div class="rooms-manager">
+          <h2 class="sub-heading">ห้องเรียนทั้งหมด</h2>
+          <div class="rooms-list" id="rooms-list"></div>
+
+          <form id="add-room-form" class="inline-add-form compact-add-room">
+            <div class="field field-name">
+              <label for="new-room-name">เพิ่มห้องเรียนใหม่</label>
+              <input type="text" id="new-room-name" placeholder="เช่น ม.3/2" required>
+            </div>
+            <div class="field field-name">
+              <label for="new-room-teacher">ครูที่ปรึกษา (ไม่บังคับ)</label>
+              <input type="text" id="new-room-teacher" placeholder="ชื่อครูประจำชั้น">
+            </div>
+            <button type="submit" class="btn btn-secondary">สร้างห้อง</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Tab 4: Backup & Restore -->
+      <section class="tab-panel" data-panel="backup">
+        <p class="helper-text">
+          ข้อมูลรายชื่อและการเช็คชื่อทั้งหมดถูกบันทึกไว้ในเบราว์เซอร์ของเครื่องนี้โดยอัตโนมัติ (ใช้งานผ่าน GitHub Pages ได้โดยไม่ต้องมีเซิร์ฟเวอร์)
+          คุณสามารถสำรองไฟล์เก็บไว้หรือย้ายข้อมูลไปเครื่องอื่นได้จากที่นี่
+        </p>
+        <div class="backup-card-grid">
+          <div class="backup-box">
+            <h3>ส่งออกไฟล์สำรอง (.json)</h3>
+            <p>ดาวน์โหลดรายชื่อนักเรียนและประวัติการเช็คชื่อทุกห้องเก็บไว้</p>
+            <button type="button" class="btn btn-primary" id="export-json-btn">ดาวน์โหลดไฟล์สำรอง</button>
+          </div>
+          <div class="backup-box">
+            <h3>นำเข้าไฟล์สำรอง (.json)</h3>
+            <p>กู้คืนข้อมูลจากไฟล์สำรองที่เคยบันทึกไว้ก่อนหน้า</p>
+            <label class="btn btn-secondary file-upload-btn">
+              <span>เลือกไฟล์ .json</span>
+              <input type="file" id="import-json-input" accept="application/json,.json" hidden>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-footer">
+      <form method="dialog">
+        <button type="submit" class="btn btn-secondary" value="close">เสร็จสิ้น</button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Native Modal Dialog 3: Attendance History -->
+  <dialog id="history-dialog" class="modal-dialog" closedby="any" aria-labelledby="history-dialog-title">
+    <div class="modal-header">
+      <h1 id="history-dialog-title">ประวัติการเช็คชื่อย้อนหลัง</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" value="close" aria-label="ปิดหน้าต่าง">✕</button>
+      </form>
+    </div>
+    <div class="modal-body">
+      <p class="helper-text" id="history-room-subtitle"></p>
+      <div class="history-list" id="history-list"></div>
+    </div>
+    <div class="modal-footer">
+      <form method="dialog">
+        <button type="submit" class="btn btn-secondary" value="close" autofocus>ปิด</button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Native Modal Dialog 4: Confirm Clear Today -->
+  <dialog id="confirm-clear-dialog" class="modal-dialog modal-sm" aria-labelledby="confirm-clear-title">
+    <div class="modal-header">
+      <h1 id="confirm-clear-title">ยืนยันการล้างข้อมูลวันนี้?</h1>
+    </div>
+    <div class="modal-body">
+      <p class="helper-text" id="confirm-clear-desc">
+        สถานะการเช็คชื่อและหมายเหตุทั้งหมดของวันนี้จะถูกล้างออก คุณต้องการดำเนินการต่อหรือไม่?
+      </p>
+    </div>
+    <form method="dialog" class="modal-footer">
+      <button type="submit" class="btn btn-secondary" value="cancel" autofocus>ยกเลิก</button>
+      <button type="submit" class="btn btn-danger" value="confirm">ล้างข้อมูลวันนี้</button>
+    </form>
+  </dialog>
+
+  <script defer src="js/thai-date.js"></script>
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/image-export.js"></script>
+  <script defer src="js/app.js"></script>
+</body>
+</html>
