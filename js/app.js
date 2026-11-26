@@ -89,7 +89,15 @@
 
     // Confirm clear dialog
     confirmClearDialog: document.getElementById('confirm-clear-dialog'),
-    confirmClearDesc: document.getElementById('confirm-clear-desc')
+    confirmClearDesc: document.getElementById('confirm-clear-desc'),
+
+    // Settings password dialog
+    settingsAuthDialog: document.getElementById('settings-auth-dialog'),
+    settingsAuthForm: document.getElementById('settings-auth-form'),
+    settingsPasswordInput: document.getElementById('settings-password-input'),
+    toggleSettingsPwBtn: document.getElementById('toggle-settings-pw-btn'),
+    settingsAuthError: document.getElementById('settings-auth-error'),
+    cancelSettingsAuthBtn: document.getElementById('cancel-settings-auth-btn')
   };
 
   /* ---------- Accessibility & Feedback Helpers ---------- */
@@ -718,10 +726,26 @@
       .join('');
   }
 
-  function openManageDialog(initialTab = 'students') {
+  const SETTINGS_PASSWORD = 'Teacher';
+  let pendingManageTab = 'students';
+
+  function openManageDialogVerified(initialTab = 'students') {
     switchManageTab(initialTab);
     renderManageModalContent();
     els.manageDialog.showModal();
+  }
+
+  function openManageDialog(initialTab = 'students') {
+    pendingManageTab = initialTab;
+    els.settingsPasswordInput.value = '';
+    els.settingsPasswordInput.type = 'password';
+    els.toggleSettingsPwBtn.textContent = 'แสดง';
+    els.toggleSettingsPwBtn.setAttribute('aria-label', 'แสดงรหัสผ่าน');
+    els.settingsAuthError.textContent = '';
+    els.settingsAuthDialog.showModal();
+    requestAnimationFrame(() => {
+      els.settingsPasswordInput.focus();
+    });
   }
 
   /* ---------- Attendance History Modal ---------- */
@@ -945,8 +969,47 @@
       els.imageDialog.returnValue = '';
     });
 
-    // Manage Modal triggers & tabs
+    // Manage Modal triggers & password gate
     els.openManageBtn.addEventListener('click', () => openManageDialog('students'));
+
+    els.settingsAuthForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const entered = els.settingsPasswordInput.value.trim();
+      if (entered === SETTINGS_PASSWORD) {
+        els.settingsPasswordInput.value = '';
+        els.settingsAuthError.textContent = '';
+        els.settingsAuthDialog.close();
+        openManageDialogVerified(pendingManageTab);
+      } else {
+        els.settingsAuthError.textContent = 'รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง';
+        els.settingsPasswordInput.focus();
+        els.settingsPasswordInput.select();
+      }
+    });
+
+    els.settingsPasswordInput.addEventListener('input', () => {
+      if (els.settingsAuthError.textContent) {
+        els.settingsAuthError.textContent = '';
+      }
+    });
+
+    els.toggleSettingsPwBtn.addEventListener('click', () => {
+      const isHidden = els.settingsPasswordInput.type === 'password';
+      els.settingsPasswordInput.type = isHidden ? 'text' : 'password';
+      els.toggleSettingsPwBtn.textContent = isHidden ? 'ซ่อน' : 'แสดง';
+      els.toggleSettingsPwBtn.setAttribute('aria-label', isHidden ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน');
+      els.settingsPasswordInput.focus();
+    });
+
+    els.cancelSettingsAuthBtn.addEventListener('click', () => {
+      els.settingsAuthDialog.close();
+    });
+
+    els.settingsAuthDialog.addEventListener('close', () => {
+      els.settingsAuthDialog.returnValue = '';
+      els.settingsPasswordInput.value = '';
+      els.settingsAuthError.textContent = '';
+    });
 
     els.manageDialog.addEventListener('click', (e) => {
       const tabBtn = e.target.closest('.tab-btn');

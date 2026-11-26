@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
   <div class="app-shell">
@@ -453,9 +453,46 @@
     </form>
   </dialog>
 
-  <script defer src="js/thai-date.js?v=3"></script>
-  <script defer src="js/storage.js?v=3"></script>
-  <script defer src="js/image-export.js?v=3"></script>
-  <script defer src="js/app.js?v=3"></script>
+  <!-- Native Modal Dialog 5: Settings Password Gate -->
+  <dialog id="settings-auth-dialog" class="modal-dialog modal-sm" closedby="any" aria-labelledby="settings-auth-title">
+    <div class="modal-header">
+      <h1 id="settings-auth-title">ยืนยันรหัสผ่านครู</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" value="cancel" aria-label="ปิดหน้าต่าง">✕</button>
+      </form>
+    </div>
+    <form id="settings-auth-form" novalidate>
+      <div class="modal-body">
+        <p class="helper-text">กรุณากรอกรหัสผ่านเพื่อเข้าสู่เมนูตั้งค่าและจัดการรายชื่อนักเรียน</p>
+        <div class="field">
+          <label for="settings-password-input">รหัสผ่าน</label>
+          <div class="password-input-wrap">
+            <input
+              type="password"
+              id="settings-password-input"
+              placeholder="กรอกรหัสผ่าน"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              required
+              autofocus
+            >
+            <button type="button" class="btn-toggle-pw" id="toggle-settings-pw-btn" aria-label="แสดงรหัสผ่าน">แสดง</button>
+          </div>
+          <p class="auth-error-msg" id="settings-auth-error" role="alert"></p>
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-auth">
+        <button type="button" class="btn btn-secondary" id="cancel-settings-auth-btn">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary">ยืนยัน</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script defer src="js/thai-date.js?v=4"></script>
+  <script defer src="js/storage.js?v=4"></script>
+  <script defer src="js/image-export.js?v=4"></script>
+  <script defer src="js/app.js?v=4"></script>
 </body>
 </html>

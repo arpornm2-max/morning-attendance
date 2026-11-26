@@ -1189,6 +1189,54 @@ dialog::backdrop {
   border-color: var(--brand-primary);
 }
 
+.password-input-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.password-input-wrap input {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.btn-toggle-pw {
+  min-inline-size: 62px;
+  min-block-size: 42px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.84rem;
+  font-weight: 600;
+  touch-action: manipulation;
+}
+
+.btn-toggle-pw:hover {
+  background: #e2e8f0;
+  color: var(--text-main);
+}
+
+.auth-error-msg {
+  margin: 2px 0 0;
+  min-block-size: 1.35em;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.modal-footer-auth {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.modal-footer-auth .btn {
+  inline-size: 100%;
+}
+
 .inline-add-form {
   display: grid;
   grid-template-columns: 82px minmax(0, 1fr) 118px auto;
