@@ -214,7 +214,7 @@
     ctx.fillText('สรุปการเช็คชื่อเข้าแถวตอนเช้า', PAD + 22, 46);
 
     // Room Pill on Top Right
-    const roomBadgeText = `ห้อง ${room.name}`;
+    const roomBadgeText = `ชั้น ${room.name}`;
     ctx.font = `700 22px ${FONT_HEADING}`;
     const roomBadgeW = Math.max(132, ctx.measureText(roomBadgeText).width + 44);
     drawRoundedRect(ctx, W - PAD - roomBadgeW, 28, roomBadgeW, 44, 14);
@@ -225,11 +225,12 @@
     ctx.fillText(roomBadgeText, W - PAD - roomBadgeW / 2, 51);
     ctx.textAlign = 'left';
 
-    // School Name
+    // School Name or Class Title
     ctx.fillStyle = '#ffffff';
     ctx.font = `700 32px ${FONT_HEADING}`;
+    const headerMainTitle = schoolName ? schoolName : `นักเรียนชั้น ${room.name}`;
     ctx.fillText(
-      truncateText(ctx, schoolName || 'ระบบเช็คชื่อเข้าแถวตอนเช้า', CONTENT_W - roomBadgeW - 24),
+      truncateText(ctx, headerMainTitle, CONTENT_W - roomBadgeW - 24),
       PAD,
       102
     );
@@ -242,8 +243,8 @@
     // Teacher line
     if (room.teacher) {
       ctx.fillStyle = '#bfdbfe';
-      ctx.font = `400 18px ${FONT_BODY}`;
-      ctx.fillText(`ครูที่ปรึกษา: ${truncateText(ctx, room.teacher, CONTENT_W - 140)}`, PAD, 178);
+      ctx.font = `500 18px ${FONT_BODY}`;
+      ctx.fillText(`ครูประจำชั้น: ${truncateText(ctx, room.teacher, CONTENT_W - 110)}`, PAD, 178);
     }
 
     // 3. Overview Card (overlapping header)

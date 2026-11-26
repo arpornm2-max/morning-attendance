@@ -251,8 +251,10 @@
     if (state.settings.schoolName) {
       lines.push(`🏫 ${state.settings.schoolName}`);
     }
-    const teacherPart = room.teacher ? ` (${room.teacher})` : '';
-    lines.push(`📌 ห้อง ${room.name}${teacherPart}`);
+    lines.push(`📌 นักเรียนชั้น ${room.name}`);
+    if (room.teacher) {
+      lines.push(`👩‍🏫 ครูประจำชั้น: ${room.teacher}`);
+    }
     lines.push(`📅 ${ThaiDate.formatThaiDateFull(isoDate)}`);
     lines.push('');
 
@@ -332,19 +334,26 @@
 
   function renderHeaderAndDate() {
     const room = Storage.getActiveRoom(state);
-    els.headerSchoolName.textContent = state.settings.schoolName || 'ระบบเช็คชื่อเข้าแถวตอนเช้า';
+    els.headerSchoolName.textContent = state.settings.schoolName
+      ? `${state.settings.schoolName} • ชั้น ${room.name}`
+      : `นักเรียนชั้น ${room.name} (${room.students.length} คน)`;
 
-    // Room selector options
+    // Room selector options (hide dropdown on mobile if only 1 room to keep topbar sleek)
+    const roomWrap = document.getElementById('room-select-wrap');
+    if (roomWrap) {
+      roomWrap.classList.toggle('single-room', state.rooms.length <= 1);
+    }
+
     els.roomSelector.innerHTML = state.rooms
       .map(
         (r) =>
-          `<option value="${escapeHtml(r.id)}" ${r.id === room.id ? 'selected' : ''}>ห้อง ${escapeHtml(r.name)} (${r.students.length} คน)</option>`
+          `<option value="${escapeHtml(r.id)}" ${r.id === room.id ? 'selected' : ''}>ชั้น ${escapeHtml(r.name)} (${r.students.length} คน)</option>`
       )
       .join('');
 
     els.thaiDateLabel.textContent = ThaiDate.formatThaiDateFull(currentDate);
     els.attendanceDate.value = currentDate;
-    els.teacherNamePill.textContent = room.teacher ? `ครูที่ปรึกษา: ${room.teacher}` : '';
+    els.teacherNamePill.textContent = room.teacher ? `ครูประจำชั้น: ${room.teacher}` : '';
     els.todayDateBtn.hidden = currentDate === ThaiDate.getTodayISO();
     els.toggleIncludePresent.checked = Boolean(state.settings.includePresentInLine);
   }
@@ -481,7 +490,7 @@
               data-status-key="${st.key}"
               aria-pressed="${pressed ? 'true' : 'false'}"
               style="--st-color:${st.color};--st-bg:${st.softBg};--st-text:${st.darkText}"
-            >${st.label}</button>
+            ><span class="status-btn-dot" aria-hidden="true"></span><span>${st.label}</span></button>
           `;
         }).join('');
 
@@ -500,7 +509,14 @@
                 class="note-toggle-btn ${entry.note ? 'has-note' : ''}"
                 data-note-toggle="${escapeHtml(stu.id)}"
                 aria-expanded="${isNoteOpen ? 'true' : 'false'}"
-              >${entry.note ? 'แก้หมายเหตุ' : '+ หมายเหตุ'}</button>
+                aria-label="${entry.note ? 'แก้ไขหมายเหตุของ ' + escapeHtml(stu.name) : 'เพิ่มหมายเหตุของ ' + escapeHtml(stu.name)}"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span class="note-btn-text">${entry.note ? 'แก้หมายเหตุ' : 'หมายเหตุ'}</span>
+              </button>
             </div>
             <div class="status-buttons" role="group" aria-label="สถานะของ ${escapeHtml(stu.name)}">
               ${buttonsHtml}
@@ -897,6 +913,16 @@
     els.openImagePreviewBtn.addEventListener('click', openImageDialog);
     els.mobileImageBtn.addEventListener('click', openImageDialog);
     els.closeImageBtn.addEventListener('click', () => els.imageDialog.close());
+
+    const mobileSummaryJumpBtn = document.getElementById('mobile-summary-jump-btn');
+    if (mobileSummaryJumpBtn) {
+      mobileSummaryJumpBtn.addEventListener('click', () => {
+        const panel = document.getElementById('export-panel');
+        if (panel) {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
 
     els.modeSummaryBtn.addEventListener('click', () => {
       if (currentImageMode !== 'summary') {

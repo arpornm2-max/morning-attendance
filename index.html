@@ -2,10 +2,12 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#1e3a8a">
-  <meta name="description" content="โปรแกรมเช็คชื่อนักเรียนเข้าแถวตอนเช้า มีสถานะ มาเรียน สาย ขาด ลากิจ ลาป่วย กิจกรรม พร้อมคัดลอกสรุปส่ง LINE และบันทึกรูปภาพสรุปรายวัน">
-  <title>ระบบเช็คชื่อนักเรียนเข้าแถวตอนเช้า</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="โปรแกรมเช็คชื่อนักเรียนเข้าแถวตอนเช้า ชั้น ม.3/7 มีสถานะ มาเรียน สาย ขาด ลากิจ ลาป่วย กิจกรรม พร้อมคัดลอกสรุปส่ง LINE และบันทึกรูปภาพสรุปรายวัน">
+  <title>เช็คชื่อเข้าแถวตอนเช้า ชั้น ม.3/7</title>
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +22,7 @@
       <div class="topbar-inner">
         <div class="brand">
           <div class="brand-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="4"></circle>
               <path d="M12 2v2"></path>
               <path d="M12 20v2"></path>
@@ -33,13 +35,13 @@
             </svg>
           </div>
           <div class="brand-text">
-            <p class="school-label" id="header-school-name">โรงเรียนตัวอย่างวิทยาคม</p>
+            <p class="school-label" id="header-school-name">นักเรียนชั้น ม.3/7</p>
             <h1 class="app-title">เช็คชื่อเข้าแถวตอนเช้า</h1>
           </div>
         </div>
 
         <div class="topbar-actions">
-          <div class="room-select-wrap">
+          <div class="room-select-wrap" id="room-select-wrap">
             <label for="room-selector" class="sr-only">เลือกห้องเรียน</label>
             <select id="room-selector" class="room-select" aria-label="เลือกห้องเรียน"></select>
           </div>
@@ -48,7 +50,7 @@
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            <span>ประวัติ</span>
+            <span class="topbar-btn-label">ประวัติ</span>
           </button>
           <button type="button" class="btn btn-glass" id="open-manage-btn">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -57,7 +59,7 @@
               <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-            <span>รายชื่อ / ตั้งค่า</span>
+            <span class="topbar-btn-label">ตั้งค่า</span>
           </button>
         </div>
       </div>
@@ -207,25 +209,35 @@
     <nav class="mobile-bottom-bar" aria-label="คำสั่งส่งออกด่วน">
       <span class="copy copy-mobile">
         <button type="button" class="btn btn-line copy-button" command="--copy" commandfor="line-summary-text">
-          <svg class="icon-copy" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg class="icon-copy" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
-          <svg class="icon-check" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg class="icon-check" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
-          <span>คัดลอกส่ง LINE</span>
+          <span>คัดลอก LINE</span>
         </button>
         <span class="tip" role="status"></span>
       </span>
 
       <button type="button" class="btn btn-primary" id="mobile-image-btn">
-        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
           <circle cx="8.5" cy="8.5" r="1.5"></circle>
           <polyline points="21 15 16 10 5 21"></polyline>
         </svg>
-        <span>บันทึกรูปภาพ</span>
+        <span>บันทึกรูป</span>
+      </button>
+
+      <button type="button" class="btn btn-secondary mobile-summary-btn" id="mobile-summary-jump-btn" aria-label="เลื่อนไปดูข้อความสรุป">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <span>สรุป</span>
       </button>
     </nav>
   </div>
@@ -339,11 +351,11 @@
           <div class="form-row-2">
             <div class="field">
               <label for="setting-room-name">ชื่อห้องเรียนปัจจุบัน</label>
-              <input type="text" id="setting-room-name" placeholder="เช่น ม.3/1">
+              <input type="text" id="setting-room-name" placeholder="เช่น ม.3/7">
             </div>
             <div class="field">
-              <label for="setting-room-teacher">ชื่อครูที่ปรึกษา</label>
-              <input type="text" id="setting-room-teacher" placeholder="เช่น ครูอาภรณ์ ม่านทอง">
+              <label for="setting-room-teacher">ชื่อครูประจำชั้น</label>
+              <input type="text" id="setting-room-teacher" placeholder="เช่น ครูพลวัต คำสอน, ครูอาภรณ์ ม่านทอง">
             </div>
           </div>
           <label class="checkbox-row">
@@ -364,10 +376,10 @@
           <form id="add-room-form" class="inline-add-form compact-add-room">
             <div class="field field-name">
               <label for="new-room-name">เพิ่มห้องเรียนใหม่</label>
-              <input type="text" id="new-room-name" placeholder="เช่น ม.3/2" required>
+              <input type="text" id="new-room-name" placeholder="เช่น ม.3/8" required>
             </div>
             <div class="field field-name">
-              <label for="new-room-teacher">ครูที่ปรึกษา (ไม่บังคับ)</label>
+              <label for="new-room-teacher">ครูประจำชั้น (ไม่บังคับ)</label>
               <input type="text" id="new-room-teacher" placeholder="ชื่อครูประจำชั้น">
             </div>
             <button type="submit" class="btn btn-secondary">สร้างห้อง</button>

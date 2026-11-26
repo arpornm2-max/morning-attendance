@@ -132,9 +132,9 @@
     const students = buildDefaultStudents();
 
     return {
-      version: 2,
+      version: 3,
       settings: {
-        schoolName: 'โรงเรียนตัวอย่างวิทยาคม',
+        schoolName: '',
         includePresentInLine: false,
         showGenderSummary: true
       },
@@ -142,8 +142,8 @@
       rooms: [
         {
           id: 'room-default-1',
-          name: 'ม.3/1',
-          teacher: 'ครูที่ปรึกษา ม.3/1',
+          name: 'ม.3/7',
+          teacher: 'ครูพลวัต คำสอน, ครูอาภรณ์ ม่านทอง',
           students
         }
       ],
@@ -166,8 +166,10 @@
         return fresh;
       }
 
-      // Auto-migrate if previously loaded only the initial sample placeholder students
+      let migrated = false;
       const defaultRoom = parsed.rooms.find((r) => r.id === 'room-default-1');
+
+      // Auto-migrate placeholder sample students to real 37 students
       if (
         defaultRoom &&
         Array.isArray(defaultRoom.students) &&
@@ -175,16 +177,33 @@
         defaultRoom.students.every((s) => typeof s.id === 'string' && s.id.startsWith('stu-sample-'))
       ) {
         defaultRoom.students = buildDefaultStudents();
-        parsed.version = 2;
         if (parsed.records && parsed.records['room-default-1']) {
           delete parsed.records['room-default-1'];
         }
-        saveState(parsed);
+        migrated = true;
+      }
+
+      // Auto-migrate default room ม.3/1 -> ม.3/7 & homeroom teachers
+      if (defaultRoom && (!parsed.version || parsed.version < 3)) {
+        if (defaultRoom.name === 'ม.3/1') {
+          defaultRoom.name = 'ม.3/7';
+          migrated = true;
+        }
+        if (!defaultRoom.teacher || defaultRoom.teacher === 'ครูที่ปรึกษา ม.3/1') {
+          defaultRoom.teacher = 'ครูพลวัต คำสอน, ครูอาภรณ์ ม่านทอง';
+          migrated = true;
+        }
+        if (parsed.settings && parsed.settings.schoolName === 'โรงเรียนตัวอย่างวิทยาคม') {
+          parsed.settings.schoolName = '';
+          migrated = true;
+        }
+        parsed.version = 3;
+        migrated = true;
       }
 
       parsed.settings = Object.assign(
         {
-          schoolName: 'โรงเรียนตัวอย่างวิทยาคม',
+          schoolName: '',
           includePresentInLine: false,
           showGenderSummary: true
         },
@@ -194,6 +213,7 @@
       if (!parsed.rooms.some((r) => r.id === parsed.activeRoomId)) {
         parsed.activeRoomId = parsed.rooms[0].id;
       }
+      if (migrated) saveState(parsed);
       return parsed;
     } catch {
       return createSampleData();
